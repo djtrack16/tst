@@ -59,6 +59,7 @@ root.traverse() (post-order traversal by default)
 - Self-balancing strategy to avoid degeneracy (especially in cases where we delete a word that is in the midst of a common prefix)
 - Performance and functionality testing
 - Let me know if you'd like to use this. I can set up a package for it
+- Comparison handling for case-insensitivity (maybe add another flag in node for case?)
 
 For the curious:
 http://www1.bcs.org.uk/upload/pdf/oommen.pdf
