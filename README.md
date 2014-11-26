@@ -58,5 +58,7 @@ root.traverse() (post-order traversal by default)
 - Capability for deleting words
 - Self-balancing strategy to avoid degeneracy (especially in cases where we delete a word that is in the midst of a common prefix)
 - Performance and functionality testing
+- Let me know if you'd like to use this. I can set up a package for it
 
-* Let me know if you'd like to use this. I can set up a package for it *
+For the curious:
+http://www1.bcs.org.uk/upload/pdf/oommen.pdf
