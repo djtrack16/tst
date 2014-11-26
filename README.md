@@ -18,15 +18,13 @@ A less-naive trie implementation known as "ternary search tree" (TST) is useful 
 * Deleting words can get tricky.
 
 **Complexity:**
-
-- Insert: O(k)
-- Membership: O(k)
-- Delete Word: O(k) (TODO)
+(klogn, k=length of word, n is height of tree; worst case, we traverse height of tree)
+- Insert, Membership, Delete: O(klogn)
 - Delete Tree: O(numNodes)
 - Size: O(1)
 - Autocomplete: O(number of words that begin with that prefix)
 
-*API*
+**API**
 
 root = TernarySearchTree()
 
