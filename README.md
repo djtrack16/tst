@@ -63,3 +63,22 @@ root.traverse() (post-order traversal by default)
 
 For the curious:
 http://www1.bcs.org.uk/upload/pdf/oommen.pdf
+
+
+*Performance*
+
+*When processing 250K words* Maximum time to insert a word, and maximum time to check if a word is in trie
+
+?:tst dliddell$ python test_tst.py 
+Max Insert time was 0.562557 sec, Max Membership Checking time was 0.024212 sec
+autocomplete time for prefix "pel" with 141 words was 0.001439 seconds
+autocomplete time for prefix "coq" with 18 words was 0.000227 seconds
+autocomplete time for prefix "lio" with 23 words was 0.000262 seconds
+autocomplete time for prefix "que" with 144 words was 0.001258 seconds
+autocomplete time for prefix "mon" with 817 words was 0.007794 seconds
+autocomplete time for prefix "lic" with 65 words was 0.000615 seconds
+autocomplete time for prefix "fen" with 49 words was 0.000450 seconds
+autocomplete time for prefix "boa" with 69 words was 0.000682 seconds
+autocomplete time for prefix "ano" with 152 words was 0.001605 seconds
+autocomplete time for prefix "gir" with 49 words was 0.000412 seconds
+
