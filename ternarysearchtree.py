@@ -39,15 +39,15 @@ class TernarySearchTree():
 		# if word is never empty, we didn't find the complete string in trie
 		return False
 
-	''' Insert a word, character by character, into the tree. If we arrive at a null child
+	def insert(self, word):
+		''' 
+		Insert a word, character by character, into the tree. If we arrive at a null child
 		and still have characters left, we create a new node with the next character in word.
 		Recursive base case: if we are at last character, just set endOfWord flag and we are done
 		Note: When we insert a word with a substantial prefix that isn't found in the tree
 		we just end up using a lot of equal nodes. This is by design. For a tree that
 		has a more equitable distribution of prefixes, the tree with be more balanced (have less/minimal height)
-	'''
-	def insert(self, word):
-		
+		'''
 		char = word[0]
 		if not self.value:
 			self.value = char
@@ -69,30 +69,61 @@ class TernarySearchTree():
 				self.equal = TernarySearchTree()
 			self.equal.insert(word[1:])
 
+	# INCOMPLETE, NOT WORKING/TESTED
 	def delete(self, word):
-		# TODO
-		pass
+		'''
+		If word is found in tree, deletes word. Otherwise, does nothing.
+		Four scenarios:
+		1. Word is not in tree:
+			-> do nothing
+		2. Word is not prefix or suffix of any other word in tree
+			-> delete all nodes in word
+		3. Word is prefix of another word in tree
+			-> set node.endOfWord to False
+		4. Another word is prefix of this word in tree:
+			-> (if node has no children), delete leaf nodes bottom-up up to most recent word
+		'''
+		# CASE 1
+		if not word and not (node.endOfWord or node.hasChildren):
+			return False
 
-	''' Simple function to traverse the tree in post-order like fashion'''
-	def traverse(self):
-		# if we want to see how our tree is constructed
-		if self.left:
-			self.left.traverse()
-		if self.equal:
-			self.equal.traverse()
-		if self.right:
-			self.right.traverse()
-		print self.value
+		node = self
+		char = word[0]
+			
+		if char == node.value:
+			word = word[1:]
 
-	''' Given a prefix, generate all possible suffixes in the tree.
-		E.g. If prefix is '', we print all the words in our tree
+			if node.endOfWord and not word:
+				#CASE 3 and 4
+				node.endOfWord = False
+				if node.hasChildren():
+					return False
+				return True
+
+			node = node.equal
+
+		elif char > node.value:
+			node = node.right
+		elif char < node.value:
+			node = node.left
+
+		if node.delete(word):
+
+
+
+	def hasChildren(self):
+		return self.left or self.right or self.equal
+
+	def allSuffixes(self, prefix):
+		''' 
+		Generate all possible words starting with this prefix in the tree.
+		E.g. If prefix is empty, all words are generated.
 		Note that we only need the equal child during the recursive call
 		because left and right child are not used to build prefixes,
 		strictly speaking, but only for comparison purposes.
-	'''
-	def allSuffixes(self, prefix):
+		'''
 		if self.endOfWord:
-			print prefix+self.value
+			yield '{0}{1}'.format(prefix,self.value)
 
 		if self.left:
 			self.left.allSuffixes(prefix)
@@ -102,20 +133,26 @@ class TernarySearchTree():
 			self.equal.allSuffixes(prefix+self.value)
 
 
-	''' Given a prefix, finds the ending node of this prefix in the tree,
-		Then calls allSuffixes method (above) on the given prefix
-	'''
 	def autocomplete(self, prefix):
+		'''
+		Given a prefix, finds all words in tree that begin with this prefix
+		'''
 		node = self
 		index = 0
+
 		while node != None:
 			char = prefix[index]
 			if char == node.value:
 				index += 1
-				node = node.equal
-				# once we find it here, we are done.
+
+				# what if we have multiple words in the tree that are in the prefix
+				# if our prefix is right at the end of a word?
+				# either way, we have found prefix, and we are done.
 				if index == len(prefix):
 					break
+
+				node = node.equal				
+
 			elif char > node.value:
 				node = node.right
 			elif char < node.value:
@@ -124,22 +161,6 @@ class TernarySearchTree():
 		# we didn't find the prefix completely
 		if index < len(prefix):
 			print 'Prefix "%s" doesn\'t exist in tree' % (prefix)
-			return
+			return set()
 
-		node.allSuffixes(prefix)
-
-	''' Destroy the tree in bottom-up fashion.
-		Delete all the leaves first, then delete their parents, and so forth up the tree
-		To actually 'delete', we can use variable=None or python's del keyword.
-		We release the attributes first, and then delete the class instance itself
-		The use of del vs None is somewhat debatable and polarizing within the python community
-		I use both to annoy everyone :)
-	'''
-	def destroy(self):
-		if self.left: self.left.destroy()
-		if self.right: self.right.destroy()
-		if self.equal: self.equal.destroy()
-
-		self.value = None
-		self.endOfWord = None
-		del self
+		return node.allSuffixes(prefix)
