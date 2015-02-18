@@ -1,44 +1,35 @@
 class TernarySearchTree():
 
-	# ternary search trees can be used any time a hashtable would be used to store strings
-	# tries are suitable when there is a proper distribution of words over the alphabet(s).
-	# ternary trees are more space-efficient when the strings to be stored share a common prefix
-	# for "given a word, find the next word in dictionary" or
-	# "find all telephone numbers with 9342" or "typing few starting character in a web browser
-	# " .... displays all website names with this prefix (i.e. auto complete feature)"
-	# 
-	# You can check with wikipedia article for a brief introduction.
-
-	#Design: left < node, right > node, down >= node
-	# each node ends up being a prefix of stored strings. all strings in the middle subtree of a node
-	# start with that prefix.
-	def __init__(self, value=None, left=None, right=None, equal=None, endOfWord=False):
-		self.value = value # idiomatically, this is a letter, but using 'value' so we know it can actually be any character
-		self.left = left
-		self.right = right
-		self.equal = equal
-		self.endOfWord = False
+	def __init__(self, value=None, endOfWord=False):
+		self.value = value
+		self.left = None
+		self.right = None
+		self.equal = None
+		self.endOfWord = endOfWord
 
 
 	def __contains__(self, word):
-		# if word has been parsed down to empty, just see if this character sequence is marked as a word
-		# note that even if the string is present in the tree, we only care if the endOfWord flag is True
-		# otherwise, this word is not in our tree.
+		'''
+		If all characters of the word are found in trie, returns True if node corresponding to
+		last character has 'endOfWord' marked as True. Note that even if the string is present
+		in the tree, we only care about endOfWord value.
+		'''
 		node = self
-		while node != None:
-			char = word[0]
-			if char == node.value:
-				word = word[1:]
-				if word == '':
-					return node.endOfWord
-				node = node.equal
-			elif char > node.value:
-				node = node.right
-			elif char < node.value:
-				node = node.left
-		# if word is never empty, we didn't find the complete string in trie
-		return False
+		for char in word:
+			while True:
+				if not node:
+					return False
+				if char > node.value:
+					node = node.right
+				elif char < node.value:
+					node = node.left
+				else:
+					last = node
+					node = node.equal
+					break
+		return last.endOfWord
 
+	# TODO: THIS WORKS, BUT IT DOESN'T MAKE MUCH SENSE, NEEDS REFACTORING
 	def insert(self, word):
 		''' 
 		Insert a word, character by character, into the tree. If we arrive at a null child
@@ -46,7 +37,8 @@ class TernarySearchTree():
 		Recursive base case: if we are at last character, just set endOfWord flag and we are done
 		Note: When we insert a word with a substantial prefix that isn't found in the tree
 		we just end up using a lot of equal nodes. This is by design. For a tree that
-		has a more equitable distribution of prefixes, the tree with be more balanced (have less/minimal height)
+		has a more equitable distribution of prefixes, the tree with be more balanced (have
+		less/minimal height)
 		'''
 		char = word[0]
 		if not self.value:
@@ -68,6 +60,7 @@ class TernarySearchTree():
 			if not self.equal:
 				self.equal = TernarySearchTree()
 			self.equal.insert(word[1:])
+
 
 	# INCOMPLETE, NOT WORKING/TESTED
 	def delete(self, word):
@@ -108,13 +101,14 @@ class TernarySearchTree():
 			node = node.left
 
 		if node.delete(word):
+			pass
 
 
 
 	def hasChildren(self):
 		return self.left or self.right or self.equal
 
-	def allSuffixes(self, prefix):
+	def all_suffixes(self, prefix):
 		''' 
 		Generate all possible words starting with this prefix in the tree.
 		E.g. If prefix is empty, all words are generated.
@@ -123,14 +117,17 @@ class TernarySearchTree():
 		strictly speaking, but only for comparison purposes.
 		'''
 		if self.endOfWord:
-			yield '{0}{1}'.format(prefix,self.value)
+			yield "{0}{1}".format(prefix,self.value)
 
 		if self.left:
-			self.left.allSuffixes(prefix)
+			for word in self.left.all_suffixes(prefix):
+				yield word
 		if self.right:
-			self.right.allSuffixes(prefix)
+			for word in self.right.all_suffixes(prefix):
+				yield word
 		if self.equal:
-			self.equal.allSuffixes(prefix+self.value)
+			for word in self.equal.all_suffixes(prefix+self.value):
+				yield word
 
 
 	def autocomplete(self, prefix):
@@ -138,29 +135,18 @@ class TernarySearchTree():
 		Given a prefix, finds all words in tree that begin with this prefix
 		'''
 		node = self
-		index = 0
-
-		while node != None:
-			char = prefix[index]
-			if char == node.value:
-				index += 1
-
-				# what if we have multiple words in the tree that are in the prefix
-				# if our prefix is right at the end of a word?
-				# either way, we have found prefix, and we are done.
-				if index == len(prefix):
+		for char in prefix:
+			while True:
+				if char > node.value:
+					node = node.right
+				elif char < node.value:
+					node = node.left
+				else:
+					node = node.equal
 					break
+				if not node:
+					print 'Prefix "%s" doesn\'t exist in tree' % (prefix)
+					return set()
+		return node.all_suffixes(prefix)
+		
 
-				node = node.equal				
-
-			elif char > node.value:
-				node = node.right
-			elif char < node.value:
-				node = node.left
-
-		# we didn't find the prefix completely
-		if index < len(prefix):
-			print 'Prefix "%s" doesn\'t exist in tree' % (prefix)
-			return set()
-
-		return node.allSuffixes(prefix)
